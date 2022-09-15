@@ -11,7 +11,7 @@ volumes:
 services:
 
   prometheus:
-    image: prom/prometheus:v2.17.1
+    image: prom/prometheus:v2.37.1
     container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -32,7 +32,7 @@ services:
       org.label-schema.group: "monitoring"
 
   alertmanager:
-    image: prom/alertmanager:v0.20.0
+    image: prom/alertmanager:v0.24.0
     container_name: alertmanager
     volumes:
       - ./alertmanager:/etc/alertmanager
@@ -48,7 +48,7 @@ services:
       org.label-schema.group: "monitoring"
 
   nodeexporter:
-    image: prom/node-exporter:v0.18.1
+    image: prom/node-exporter:v1.4.0-rc.0
     container_name: nodeexporter
     volumes:
       - /proc:/host/proc:ro
@@ -67,15 +67,16 @@ services:
     labels:
       org.label-schema.group: "monitoring"
 
-  cadvisor:
-    image: gcr.io/google-containers/cadvisor:v0.34.0
+  
+  :
+    image: gcr.io/cadvisor/cadvisor:v0.44.0
     container_name: cadvisor
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
-      #- /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
+      - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
     restart: unless-stopped
     expose:
       - 8080
@@ -85,11 +86,11 @@ services:
       org.label-schema.group: "monitoring"
 
   grafana:
-    image: grafana/grafana:6.7.2
+    image: grafana/grafana:9.1.5
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
+#      - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -103,7 +104,7 @@ services:
       org.label-schema.group: "monitoring"
 
   pushgateway:
-    image: prom/pushgateway:v1.2.0
+    image: prom/pushgateway:v1.4.3
     container_name: pushgateway
     restart: unless-stopped
     expose:
@@ -121,6 +122,7 @@ services:
       - "9090:9090"
       - "9093:9093"
       - "9091:9091"
+      - "8080:8080"
     volumes:
       - ./caddy:/etc/caddy
     environment:
